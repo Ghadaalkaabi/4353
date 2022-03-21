@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Fuel Quotes | Fuel Quote Form</title>
+	<script
+      src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+      integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8="
+      crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+</head>
+<style>
+	*{
+		margin: 0;
+		padding: 0;
+	}
+	#header{
+		color: white;
+		background: green;
+		text-align: center;
+		height: 50px;
+		padding: 20px;
+	}
+	#contact_container{
+		border: 1px solid black;
+		width: 30%;
+		margin-top: 20px;
+		margin-left: 40%;
+		padding: 20px;
+		border-radius: 30px;
+	}
+	#div_form h2{
+		color: green;
+		text-align: center;
+		font-size: 30px;
+		margin-bottom: 10px;
+	}
+	#div_form label{
+		font-size: 20px;
+		padding-top: 10px;
+	}
+	form{
+		text-align: center;
+	}
+	input, select{
+		width: 80%;
+		height: 20px;
+		margin-top: 10px;
+		padding: 5px;
+	}
+	#getQuote{
+		color: white;
+		background: green;
+		height: 40px;
+		font-weight: bold;
+		font-size: 20px;
+		padding: 10px;
+	}
+	#getQuote:hover{
+		background: magenta;
+	}
+	#submit{
+		color: white;
+		background: blue;
+		height: 40px;
+		font-weight: bold;
+		font-size: 20px;
+		padding: 10px;
+	}
+	#submit:hover{
+		background: red;
+	}
+	select{
+		height: 30px;
+	}
+	
+</style>
+<body>
+	<div id="header">
+		<h1>Fuel Quote Site | Quote Form</h1>
+	</div>
+	<div id="contact_container">
+		<div id="div_form">
+			<h2><u>Fill the Fuel Quote Form Below</u></h2>
+			<form method='post' action="profile.html">
+				<div class="entry">
+					<label>Gallons Requested</label><br>
+					<input type="number" id="gallons" name="gallons" placeholder="Enter Gallons" required>
+				</div>
+				<div class="entry">
+					<label>Delivery Address</label><br>
+					<input type="text" id="address" name="address" readonly>
+				</div>
+				<div class="entry">
+					<label>Delivery Date</label><br>
+					<input type="date" id="date" name="date" placeholder="Pick Delivery Date" required>
+				</div>
+				<div class="entry">
+					<label>Suggested Price / Gallon</label><br>
+					<input type="number" id="suggested" name="suggested" readonly>
+				</div>
+				<div class="entry">
+					<label>Total Amount Due</label><br>
+					<input type="number" id="total" name="total" readonly>
+				</div>
+				
+				
+				<input type="button" id="getQuote" name="getQuote" value="Get Quote">
+				<input type="button" id="submit" name="submit" value="Submit Quote">
+				
+			
+			</form> 
+			
+			
+
+		</div>
+		
+		
+	</div>
+</body>
+</html>
+<script>
+
+	$(function(){
+		$.ajax({
+			type: "POST",
+			data:{action: "getAddress"},
+			url: "login.php",
+			success: function(response){
+				var dataArray = JSON.parse(response);
+				document.getElementById('address').value = dataArray.address;
+				
+
+			}
+		});
+
+	});
+
+	$("#getQuote").click(function() {
+		var gallons = $("#gallons").val();
+		var address = $("#address").val();
+		var date = $("#date").val();
+		if (gallons != "") {
+			if (address != "") {
+				if (date != "") {
+					$.ajax({
+						type: "POST",
+						data:{action: "getQuote", gallons: gallons},
+						url: "pricing.php",
+						success: function(response){
+							var dataArray = JSON.parse(response);
+							document.getElementById('suggested').value = dataArray.suggested_price;
+							document.getElementById('total').value = dataArray.total_amount;
+
+						}
+					});
+			
+				}
+			}
+
+		}
+	});
+	$("#submit").click(function() {
+		var gallons = $("#gallons").val();
+		var address = $("#address").val();
+		var date = $("#date").val();
+		var suggested = $("#suggested").val();
+		var total = $("#total").val();
+		if (gallons != "") {
+			if (date != "") {
+				$.ajax({
+					type: "POST",
+					data:{action: "addFuelQuote", gallons: gallons, address: address, date: date, suggested: suggested, total: total},
+					url: "fuel.php",
+					success: function(response){
+						var dataArray = JSON.parse(response);
+						if(dataArray.status == "false"){
+							alert("Unable to add Fuel Quote.");
+						}else{
+							alert("Fuel Quote Added successfully");
+							
+						}
+						
+					}
+				});
+				
+
+			}
+
+		}
+		
+	});
+</script>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Fuel Quotes | Profile</title>
+	<script
+      src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+      integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8="
+      crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+</head>
+<style>
+	*{
+		margin: 0;
+		padding: 0;
+	}
+	#header{
+		color: white;
+		background: green;
+		text-align: center;
+		height: 50px;
+		padding: 20px;
+	}
+	#contact_container{
+		border: 1px solid black;
+		width: 30%;
+		margin-top: 20px;
+		margin-left: 40%;
+		padding: 20px;
+		border-radius: 30px;
+	}
+	#div_form h2{
+		color: green;
+		text-align: center;
+		font-size: 30px;
+		margin-bottom: 10px;
+	}
+	#div_form label{
+		font-size: 20px;
+		padding-top: 10px;
+	}
+	form{
+		text-align: center;
+	}
+	input, select{
+		width: 80%;
+		height: 20px;
+		margin-top: 10px;
+		padding: 5px;
+	}
+	#update{
+		color: white;
+		background: green;
+		height: 40px;
+		font-weight: bold;
+		font-size: 20px;
+		padding: 10px;
+	}
+	#register:hover{
+		background: blue;
+	}
+	select{
+		height: 30px;
+	}
+	
+</style>
+<body>
+	<div id="header">
+		<h1>Fuel Quote Site | Profile</h1>
+	</div>
+	<div id="contact_container">
+		<div id="div_form">
+			<h2><u>Update Profile</u></h2>
+			<form method='post' action="profile.html">
+				<div class="entry">
+					<label>Name</label><br>
+					<input type="text" id="name" name="name" placeholder="Enter Full Name" required>
+				</div>
+				<div class="entry">
+					<label>Address 1</label><br>
+					<input type="text" id="address1" name="address1" placeholder="Enter Address 1" required>
+				</div>
+				<div class="entry">
+					<label>Address 2</label><br>
+					<input type="text" id="address2" name="address2" placeholder="Enter Address 2" required>
+				</div>
+				<div class="entry">
+					<label>City</label><br>
+					<input type="text" id="city" name="city" placeholder="Enter City" required>
+				</div>
+				<div class="entry">
+					<label>State: </label><br>
+					<select id="state" name="state">
+						<option value="01">Texas</option>
+						<option value="02">Colorado</option>
+						<option value="03">Kansas</option>
+						<option value="04">Maine</option>
+						<option value="05">Others</option>
+					</select>
+				</div>
+				<div class="entry">
+					<label>ZIP Code</label><br>
+					<input type="text" id="zip" name="zip" placeholder="Enter ZIP Code" required>
+				</div>
+				
+				
+				<input type="button" id="update" name="update" value="Update">
+				
+			
+			</form> 
+			
+			
+
+		</div>
+		
+		
+	</div>
+</body>
+</html>
+<script>
+	$("#update").click(function() {
+		var name = $("#name").val();
+		var address1 = $("#address1").val();
+		var address2 = $("#address2").val();
+		var city = $("#city").val();
+		var state = $("#state").val();
+		var zip = $("#zip").val();
+		if (name != "") {
+			if (address1 != "") {
+				if (city != "") {
+					if (zip != "") {
+						if (zip.length >= 5 && zip.length <= 9) {
+							$.ajax({
+								type: "POST",
+								data:{action: "updateProfile", name: name, address1: address1, address2: address2, city: city, state: state, zip: zip},
+								url: "profile.php",
+								success: function(response){
+									var dataArray = JSON.parse(response);
+									if (dataArray.message == "failed") {
+										alert("Invalid Username or Password.");
+									}else{
+										if(dataArray.status == "false"){
+											alert("Unable to update profile");
+										}else{
+											alert("Profile updated successfully");
+											window.location.href = "fuel.html";
+										}
+										
+									}
+									
+								}
+							});
+
+						}else{
+							alert("ZIP Code should have a minimum of 5 characters and a maximum of 9 characters");
+						}
+
+					}else{
+						alert("ZIP Code can't be empty");
+					}
+
+				}else{
+					alert("City can't be empty");
+				}
+				
+
+			}else{
+				alert("Address 1 can't be empty");
+			}
+
+		}else{
+			alert("Name can't be empty");
+		}
+		
+	});
+</script>

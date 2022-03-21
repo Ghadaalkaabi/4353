@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Fuel Quotes | Login</title>
+	<script
+      src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+      integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8="
+      crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+</head>
+<style>
+	*{
+		margin: 0;
+		padding: 0;
+	}
+	#header{
+		color: white;
+		background: green;
+		text-align: center;
+		height: 50px;
+		padding: 20px;
+	}
+	#contact_container{
+		border: 1px solid black;
+		width: 20%;
+		margin-top: 20px;
+		margin-left: 40%;
+		padding: 20px;
+		border-radius: 30px;
+	}
+	#div_form h2{
+		color: green;
+		text-align: center;
+		font-size: 30px;
+		margin-bottom: 30px;
+	}
+	#div_form label{
+		font-size: 25px;
+		padding-top: 10px;
+	}
+	form{
+		text-align: center;
+	}
+	input{
+		width: 80%;
+		height: 30px;
+		margin-top: 10px;
+		padding: 5px;
+	}
+	#login, #signup{
+		color: white;
+		background: green;
+		height: 50px;
+		font-weight: bold;
+		font-size: 25px;
+		padding: 10px;
+	}
+	#login:hover, #signup:hover{
+		background: blue;
+	}
+	h3{
+		margin: 20px;
+	}
+	#signup{
+		background: blue;
+	}
+	#signup:hover{
+		background: green;
+	}
+</style>
+<body>
+	<div id="header">
+		<h1>Fuel Quote Site | Login</h1>
+	</div>
+	<div id="contact_container">
+		<div id="div_form">
+			<h2><u>Login</u></h2>
+			<form method='post' action="index.html">
+				<div class="entry">
+					<label>Username</label><br>
+					<input type="text" id="username" name="username" placeholder="Enter Username" required>
+				</div>
+				<div class="entry">
+					<label>Password: </label><br>
+					<input type="password" id="password" name="password" placeholder="Enter Password" required>
+				</div>
+				
+				<input type="button" id="login" name="login" value="Login">
+				<h3>Or</h3>
+				
+			
+			</form> 
+			<form method='post' action="index.php">
+				<input type="button" id="signup" name="signup" value="Signup">
+
+			</form>
+
+		</div>
+		
+		
+	</div>
+
+</body>
+</html>
+<script>
+	$("#login").click(function() {
+		var username = $("#username").val();
+		var password = $("#password").val();
+		if (username != "") {
+			if (password != "") {
+				$.ajax({
+					type: "POST",
+					data:{action: "userLogin", username: username, password: password},
+					url: "login.php",
+					success: function(response){
+						var dataArray = JSON.parse(response);
+						if (dataArray.message == "failed") {
+							alert("Invalid Username or Password.");
+						}else{
+							if(dataArray.profile == "false"){
+								window.location.href = "profile.html";
+							}else{
+								window.location.href = "fuel.html";
+							}
+							
+						}
+						
+					}
+				});
+
+			}else{
+				alert("Password can't be empty");
+			}
+
+		}else{
+			alert("Username can't be empty");
+		}
+		
+	});
+	$("#signup").click(function() {
+		window.location.href = "signup.html";
+		
+	});
+	
+	
+</script>
