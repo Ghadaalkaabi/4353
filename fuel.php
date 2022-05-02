@@ -1,121 +1,142 @@
 <?php
-	$response = array();
-	session_start();
+include_once __DIR__ . '/includes/header.php';
+?>
 
-	if (isset($_POST["action"]) && $_POST["action"] == "addFuelQuote") {
-		$gallons = htmlspecialchars($_POST["gallons"]);
-		$date = htmlspecialchars($_POST["date"]);
-		$suggested = htmlspecialchars($_POST["suggested"]);
-		$total = htmlspecialchars($_POST["total"]);
-		
-		addFuelQuote($gallons, $date, $suggested, $total);
-		
-	}
-	if (isset($_POST["action"]) && $_POST["action"] == "getHistory") {
-
-		getHistory();
+<div class="container">
+	<div class="row">
+		<div class="col-md-6 mx-auto">
+			<div class="card p-3">
+				<h2>Fill the Fuel Quote Form Below</h2>
+				<form method='post' action="profile.html">
+					<div class="form-group">
+						<label>Gallons Requested</label><br>
+						<input class="form-control" type="number" id="gallons" name="gallons" placeholder="Enter Gallons" required>
+					</div>
 	
-	}
+					<div class="form-group">
+						<label>Delivery Address</label><br>
+						<input class="form-control" type="text" id="address" name="address" readonly>
+					</div>
 	
-	function addFuelQuote($gallons, $date, $suggested, $total)
-	{
-		include 'config.php';
-		GLOBAL $response;
+					<div class="form-group">
+						<label>Delivery Date</label><br>
+						<input class="form-control" type="date" id="date" name="date" placeholder="Pick Delivery Date" required>
+					</div>
+	
+					<div class="form-group">
+						<label>Suggested Price / Gallon</label><br>
+						<input class="form-control" type="number" id="suggested" name="suggested" readonly>
+	
+					</div>
+	
+					<div class="form-group">
+						<label>Total Amount Due</label><br>
+						<input class="form-control" type="number" id="total" name="total" readonly>
+					</div>
+	
+	
+					<input class="btn btn-success" type="button" id="getQuote" name="getQuote" value="Get Quote">
+					<input class="btn btn-primary" type="button" id="submit" name="submit" value="Submit Quote">
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
 
-		$userid = $_SESSION['id'];
-		$address = $_SESSION['address'];
 
-		$stmt = $con->prepare("INSERT INTO `fuelquote`(`userid`, `gallons_requested`, `delivery_address`, `delivery_date`, `suggested_price`, `total_amount`) VALUES (?, ?, ?, ?, ?, ?)");
-		$stmt->bind_param("ssssss", $userid, $gallons, $address, $date, $suggested, $total);
-
-		if ($stmt->execute()) {
-			$response['message'] = "Fuel Quote Added successfully";
-			$response['status'] = "success";
-			
-
-		}else{
-			
-			$response['message'] = "Unable to add Fuel Quote.";
-			$response['status'] = "failed";
-
+<script>
+	$(function() {
+		dataItems = {
+			action: "getAddress"
 		}
-	}
-	function getHistory(){
-		include 'config.php';
-		GLOBAL $response;
-		$userid = $_SESSION['id'];
+		url = "api.php"
+		function follow_up_func(data) {
+			document.getElementById('address').value = data.address;
+		}
+				
+		function follow_up_func_err(dataItems) {
+			alert("An error occured while getting your address")
+		}
 
-		$query  = "SELECT id, gallons_requested, delivery_address, delivery_date, suggested_price, total_amount FROM fuelquote WHERE userid = '$userid'";
-		$statement = $db->prepare($query);
-		 $output = '
-		    <div class="table-responsive" id="assignment-table">
-		        <table class="table table-bordered table-striped" id="table_questions">
-		            <tr id="tr_title">
-		                <th width="20%">Gallons Requested.</th>
-		                <th width="35%">Delivery Address</th>
-		                <th width="15%">Delivery Date</th>
-		                <th width="15%">Suggested Price</th>
-		                <th width="15%">Total Amount</th>
-		                
-		            </tr>
+		send_ajax_req(url, dataItems, follow_up_func, follow_up_func_err)
+	});
 
-		    ';
+	$("#getQuote").click(function() {
+		var gallons = $("#gallons").val();
+		var address = $("#address").val();
+		var date = $("#date").val();
+		if (gallons != "") {
+			if (address != "") {
+				if (date != "") {
+					dataItems = {
+						action: "getQuote",
+						gallons: gallons
+					}
+					url = "api.php"
+					function follow_up_func(data) {
+						
+						document.getElementById('suggested').value = data.suggested_price;
+						document.getElementById('total').value = data.total_amount;
+					}
+							
+					function follow_up_func_err(dataItems) {
+						alert("An error occured while getting the quote")
+					}
 
-        if ($statement->execute()) {
-            $result = $statement->fetchAll();
-            $fetch_results = mysqli_query($con, $query);
-            $result_row = mysqli_fetch_array($fetch_results, MYSQLI_ASSOC);
-            if($result_row){
-                
-                foreach ($result as $row) {
-                	$id = $row["id"];
-                	$gallons_requested = $row["gallons_requested"];
-                	$delivery_address = $row["delivery_address"];
-                	$delivery_date = $row["delivery_date"];
-                	$suggested_price = $row["suggested_price"];
-                	$total_amount = $row["total_amount"];
+					send_ajax_req(url, dataItems, follow_up_func, follow_up_func_err)
+				}else{
+					alert("Please enter the date")
+				}
+			}else{
+				alert("The address value is required")
+			}
+		}else{
+			alert("Please enter the gallons value")
+		}
+	});
 
-                	$output .= '
-                        <tr class="tr_body">
-                            <td align="right">'.$gallons_requested.'</td>
-                            <td align="right">'.$delivery_address.'</td>
-                            <td align="right">'.$delivery_date.'</td>
-                            <td align="right">'.$suggested_price.'</td>
-                            <td align="right">'.$total_amount.'</td>
-                      
-                        </tr>
-                   
-                        ';
+	$("#submit").click(function() {
+		var gallons = $("#gallons").val();
+		var address = $("#address").val();
+		var date = $("#date").val();
+		var suggested = $("#suggested").val();
+		var total = $("#total").val();
+		if (gallons != "") {
+			if (date != "") {
+				dataItems = {
+					action: "addFuelQuote",
+					gallons: gallons,
+					address: address,
+					date: date,
+					suggested: suggested,
+					total: total
+				}
+				url = "api.php"
+				function follow_up_func(data) {
+					
+					if (!data.status) {
+						alert(data.message);
+					} else {
+						alert(data.message);
+						window.location.href = "history.php";
+					}
+					
+				}
+						
+				function follow_up_func_err(dataItems) {
+					alert("An error occured while submitting your quote")
+				}
 
-                }
-                $output .= '</table></div>';
-                $response['output'] = $output;
-				$response['message'] = "success";
-            }else{
-            	$output .= '
-                    <tr>
-                        <td colspan="5" align="center">No record found at the moment.</td>
-                    </tr>
-                    ';
-                    $output .= '</table></div>';
-                $response['output'] = $output;
+				send_ajax_req(url, dataItems, follow_up_func, follow_up_func_err)
+			}else{
+				alert("Please enter the date")
+			}
+		}else{
+			alert("Please enter the gallons value")
+		}
+	});
+</script>
 
-            	$response['message'] = "none";
-            }
-        }else{
-        	$output .= '
-                    <tr>
-                        <td colspan="5" align="center">No record found at the moment.</td>
-                    </tr>
-                    ';
-            $output .= '</table></div>';
-            $response['output'] = $output;
-
-        	$response['message'] = "none";
-        }
-    }
-
-
-	echo json_encode($response);
-
+<?php
+include_once __DIR__ . '/includes/footer.php';
 ?>

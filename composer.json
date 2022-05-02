@@ -1,0 +1,7 @@
+{
+    "name": "assignment/fuel",
+    "require-dev": {
+        "phpunit/phpunit": "^9.5",
+        "pcov/clobber": "^2.0"
+    }
+}
